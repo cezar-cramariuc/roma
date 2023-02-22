@@ -1,6 +1,8 @@
 <?php
-require('con_utilizator.php');
-
+session_start();
+require('../con_utilizator.php');
+$us = $_SESSION['user_id'];
+$nume = $_SESSION['first_name'];
 ?>
 <!DOCTYPE html>
 <html>
@@ -10,9 +12,9 @@ require('con_utilizator.php');
 	<title>Roma</title>
 	<link rel="stylesheet" href="include/stil.css">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="stil/reset.css" rel="stylesheet">
-	<link href="stil/proiectare.css" rel="stylesheet">
-	<link href="include/favicon.png" rel="icon">
+	<link href="../css/reset.css" rel="stylesheet">
+	<link href="../index-css.css" rel="stylesheet">
+	<link href="../icons/logo.png" rel="icon">
 </head>
 
 <body>
@@ -20,7 +22,7 @@ require('con_utilizator.php');
 	<div id="pagina">
 		<!--nav-->
 		<?php
-		require('include/header.php');
+		require('../include/header.php');
 
 		?>
 		<!--********************************************-->
@@ -28,9 +30,7 @@ require('con_utilizator.php');
 
 			<?php
 			//***************************selectare perioade***********************
-			if($_SERVER['SCRIPT_NAME']){
-			$id=0;
-						$sel = "SELECT id_cronologie, perioada, durata FROM cronologie";
+			$sel = "SELECT id_cronologie, perioada, durata FROM cronologie";
 			$rez = mysqli_query($dbc4, $sel);
 			$i = 1;
 			echo "<ul style='list-style-type:none'>";
@@ -38,13 +38,10 @@ require('con_utilizator.php');
 			while ($row = mysqli_fetch_array($rez, MYSQLI_BOTH)) {
 				echo '<li><a href="index.php?id=' . $row['id_cronologie'] . '">' . $row['perioada'] . "</a>" . " (" . $row['durata'] . ")</li>";
 			}
-			$id=$row['id_cronologie'];
-			
 			echo "</ul>";
-		}
+
 			//*******************************sf selectare per************************************
 			//****************************selectare societate *******************************
-			$ids=0;
 			$selSoc = "SELECT id_societatea, id_cronologie, perioada FROM societatea INNER JOIN cronologie USING(id_cronologie)";
 			$rezSoc = mysqli_query($dbc4, $selSoc);
 			$p = "În perioada: ";
@@ -53,9 +50,6 @@ require('con_utilizator.php');
 			while ($rindSoc = mysqli_fetch_array($rezSoc, MYSQLI_BOTH)) {
 				echo '<li>' . $p . '<a href = "index.php?ids=' . $rindSoc['id_cronologie'] . '">' . $rindSoc['perioada'] . "</a></li>";
 			}
-			
-			$ids=$rindSoc['id_cronologie'];
-			$ids = $_REQUEST['ids'];
 			echo "</ul>";
 			//**********************************sf selectare societt
 			//*************************************selectare economie
@@ -67,7 +61,6 @@ require('con_utilizator.php');
 			while ($rindEc = mysqli_fetch_array($rezEc, MYSQLI_BOTH)) {
 				echo "<li>" . $p . '<a href = "index.php?idc=' . $rindEc['id_cronologie'] . '">' . $rindEc['perioada'] . "</a></li>";
 			}
-			$idc = $_REQUEST['idc'];
 			echo "</ul>";
 
 			//************************************sf sel eco
@@ -85,31 +78,25 @@ require('con_utilizator.php');
 			<?php
 
 			//**********************************selectarea perioadelor
-			
-			
-					
+
 			$id = $_REQUEST['id'];
 			$sel = "SELECT id_cronologie, perioada, durata FROM cronologie WHERE id_cronologie=$id";
 			$rez = mysqli_query($dbc4, $sel);
 			$row = mysqli_fetch_array($rez, MYSQLI_BOTH);
 			//**************************************sf selectare perioade
 			if ($id == 1) {
-				echo "<h3>Regii Romei</h3>";
+				echo "<h3>Regii romani</h3>";
 				$selRegi = "SELECT id_conducatori, id_cronologie, nume_conducator, perioada_conducere, caracterizare_conducator, portret FROM conducatori WHERE id_cronologie = $id";
 				$rezRegi = mysqli_query($dbc4, $selRegi);
-
-				echo "<div class='cardPrezentare'>";
-				
+				echo "<table class = 'table'>";
+				echo "<tr><th style='width:15%;'>Rege</th><th style = 'width:15%;'>Domnie</th><th style = 'width:60%;'>Portret</th></tr>";
 				while ($randRege = mysqli_fetch_array($rezRegi, MYSQLI_BOTH)) {
-					echo "<div class='cardPrezentare-itemA'><h1>Regele" ." " . $randRege['nume_conducator']. "</h1></div>";
-          echo "<div class='cardPrezentare-itemB'><h1>Perioada domniei</h1>" . $randRege['perioada_conducere']. "</div>";
-          echo "<div class='cardPrezentare-itemC'><h1>Caracteristici:</h1> <ul><li>" . $randRege['caracterizare_conducator']. "</li></ul></div>";
-          echo "<div class='cardPrezentare-itemD'>" .'<img src="img/' . $randRege['portret']. '"/>' ."</div>";  
+					echo "<tr><th style='width:25%;'>" . $randRege['nume_conducator'] . "</th><td style='width:25%;'>" . $randRege['perioada_conducere'] . "</td><td>"
+						. '.<img src="img/' . $randRege['portret'] . '"/>' .
+						"</td></tr><tr><td colspan='2' style='width:60%;'>" . $randRege['caracterizare_conducator'] . "</td></tr>";
 				}
-				echo "</div>";
-				
+				echo "</table>";
 			}
-		
 			//*********************republica */
 			if ($id == 2) {
 				echo "<h3>Personalități din timpul Republicii</h3>";
@@ -135,8 +122,6 @@ require('con_utilizator.php');
 				}
 				echo "</table>";
 			}
-		
-		
 			//******************************************sf selectarea dinastiilor
 			//************************************************ selectarea principilor
 
@@ -191,7 +176,7 @@ require('con_utilizator.php');
 			//*********************  sf selectarea principilor
 			//*********************************************************************************** */
 			//******************************preluare ids pentru societatea
-			
+			$ids = $_REQUEST['ids'];
 			if ($ids == 1) {
 				echo "<h4>Societatea în perioada Regatului</h4>";
 				$selSoc1 = "SELECT id_societatea, id_cronologie, socCaracterizare FROM societatea WHERE id_cronologie = '$ids'";
@@ -209,7 +194,7 @@ require('con_utilizator.php');
 			}
 			//*************************sf ids societt
 			//*********************************** SELECTARE idc economia
-			
+			$idc = $_REQUEST['idc'];
 			if ($idc == 1) {
 				echo "<h4>Economia în perioada monarhiei</h4>";
 				$selEc1 = "SELECT id_economia, id_cronologie,ecoCaracteristici FROM economia WHERE id_cronologie = $idc";
@@ -230,7 +215,7 @@ require('con_utilizator.php');
 		</main>
 		<!--************ sf div row  *****************************-->
 		<?php
-		require('include/footer.php');
+		require('../include/footer.php');
 		?>
 	</div>
 	<script src="../index.js"></script>
